@@ -1,0 +1,126 @@
+-- ============================================================================
+-- Procedure: bronze.load_bronze_layer()
+-- Purpose  : Truncate and Load CSV files into Bronze tables
+-- Layer    : Bronze
+-- ============================================================================
+
+CREATE OR REPLACE PROCEDURE bronze.load_bronze_layer()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_rowcount BIGINT;
+BEGIN
+
+    -- =========================================================================
+    -- SECTION 1: LOAD CRM - CUSTOMER INFO
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.crm_cust_info ...';
+    
+    TRUNCATE TABLE bronze.crm_cust_info;
+
+    COPY bronze.crm_cust_info
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/cust_info.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_cust_info;
+    RAISE NOTICE 'Loaded % rows into bronze.crm_cust_info', v_rowcount;
+
+
+    -- =========================================================================
+    -- SECTION 2: LOAD CRM - PRODUCT INFO
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.crm_prd_info ...';
+    
+    TRUNCATE TABLE bronze.crm_prd_info;
+
+    COPY bronze.crm_prd_info
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/prd_info.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_prd_info;
+    RAISE NOTICE 'Loaded % rows into bronze.crm_prd_info', v_rowcount;
+
+
+    -- =========================================================================
+    -- SECTION 3: LOAD CRM - SALES DETAILS
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.crm_sales_details ...';
+    
+    TRUNCATE TABLE bronze.crm_sales_details;
+
+    COPY bronze.crm_sales_details
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/sales_details.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_sales_details;
+    RAISE NOTICE 'Loaded % rows into bronze.crm_sales_details', v_rowcount;
+
+
+    -- =========================================================================
+    -- SECTION 4: LOAD ERP - CUSTOMER
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.erp_cust_az12 ...';
+    
+    TRUNCATE TABLE bronze.erp_cust_az12;
+
+    COPY bronze.erp_cust_az12
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/CUST_AZ12.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_cust_az12;
+    RAISE NOTICE 'Loaded % rows into bronze.erp_cust_az12', v_rowcount;
+
+
+    -- =========================================================================
+    -- SECTION 5: LOAD ERP - LOCATION
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.erp_loc_a101 ...';
+    
+    TRUNCATE TABLE bronze.erp_loc_a101;
+
+    COPY bronze.erp_loc_a101
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/LOC_A101.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_loc_a101;
+    RAISE NOTICE 'Loaded % rows into bronze.erp_loc_a101', v_rowcount;
+
+
+    -- =========================================================================
+    -- SECTION 6: LOAD ERP - PRODUCT CATEGORY
+    -- =========================================================================
+    
+    RAISE NOTICE 'Loading: bronze.erp_px_cat_g1v2 ...';
+    
+    TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+
+    COPY bronze.erp_px_cat_g1v2
+    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/PX_CAT_G1V2.csv'
+    DELIMITER ','
+    CSV HEADER;
+
+    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_px_cat_g1v2;
+    RAISE NOTICE 'Loaded % rows into bronze.erp_px_cat_g1v2', v_rowcount;
+
+
+    -- =========================================================================
+    -- END OF PROCEDURE
+    -- =========================================================================
+    
+    RAISE NOTICE 'Bronze Layer Load Completed Successfully ✅';
+
+END;
+$$;
+
+-- to run the procedure :
+-- CALL bronze.load_bronze_layer();
