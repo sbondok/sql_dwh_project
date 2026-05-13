@@ -1,126 +1,159 @@
 -- ============================================================================
--- Procedure: bronze.load_bronze_layer()
--- Purpose  : Truncate and Load CSV files into Bronze tables
--- Layer    : Bronze
+-- Procedure: bronze.load_bronze_layer_safe()
+-- Purpose  : Load Bronze Layer with Error Handling
 -- ============================================================================
 
-CREATE OR REPLACE PROCEDURE bronze.load_bronze_layer()
+CREATE OR REPLACE PROCEDURE bronze.load_bronze_layer_safe()
 LANGUAGE plpgsql
 AS $$
 DECLARE
     v_rowcount BIGINT;
+    v_error_message TEXT;
 BEGIN
 
-    -- =========================================================================
-    -- SECTION 1: LOAD CRM - CUSTOMER INFO
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.crm_cust_info ...';
-    
-    TRUNCATE TABLE bronze.crm_cust_info;
+    RAISE NOTICE '===========================================================';
+    RAISE NOTICE 'Starting Bronze Layer Load...';
+    RAISE NOTICE '===========================================================';
 
-    COPY bronze.crm_cust_info
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/cust_info.csv'
-    DELIMITER ','
-    CSV HEADER;
+    ---------------------------------------------------------------------------
+    -- CRM - CUSTOMER INFO
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.crm_cust_info';
 
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_cust_info;
-    RAISE NOTICE 'Loaded % rows into bronze.crm_cust_info', v_rowcount;
+        TRUNCATE TABLE bronze.crm_cust_info;
 
+        COPY bronze.crm_cust_info
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/cust_info.csv'
+        DELIMITER ','
+        CSV HEADER;
 
-    -- =========================================================================
-    -- SECTION 2: LOAD CRM - PRODUCT INFO
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.crm_prd_info ...';
-    
-    TRUNCATE TABLE bronze.crm_prd_info;
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_cust_info;
+        RAISE NOTICE 'Loaded % rows into crm_cust_info', v_rowcount;
 
-    COPY bronze.crm_prd_info
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/prd_info.csv'
-    DELIMITER ','
-    CSV HEADER;
-
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_prd_info;
-    RAISE NOTICE 'Loaded % rows into bronze.crm_prd_info', v_rowcount;
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading crm_cust_info: %', v_error_message;
+    END;
 
 
-    -- =========================================================================
-    -- SECTION 3: LOAD CRM - SALES DETAILS
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.crm_sales_details ...';
-    
-    TRUNCATE TABLE bronze.crm_sales_details;
+    ---------------------------------------------------------------------------
+    -- CRM - PRODUCT INFO
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.crm_prd_info';
 
-    COPY bronze.crm_sales_details
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/sales_details.csv'
-    DELIMITER ','
-    CSV HEADER;
+        TRUNCATE TABLE bronze.crm_prd_info;
 
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_sales_details;
-    RAISE NOTICE 'Loaded % rows into bronze.crm_sales_details', v_rowcount;
+        COPY bronze.crm_prd_info
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/prd_info.csv'
+        DELIMITER ','
+        CSV HEADER;
 
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_prd_info;
+        RAISE NOTICE 'Loaded % rows into crm_prd_info', v_rowcount;
 
-    -- =========================================================================
-    -- SECTION 4: LOAD ERP - CUSTOMER
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.erp_cust_az12 ...';
-    
-    TRUNCATE TABLE bronze.erp_cust_az12;
-
-    COPY bronze.erp_cust_az12
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/CUST_AZ12.csv'
-    DELIMITER ','
-    CSV HEADER;
-
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_cust_az12;
-    RAISE NOTICE 'Loaded % rows into bronze.erp_cust_az12', v_rowcount;
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading crm_prd_info: %', v_error_message;
+    END;
 
 
-    -- =========================================================================
-    -- SECTION 5: LOAD ERP - LOCATION
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.erp_loc_a101 ...';
-    
-    TRUNCATE TABLE bronze.erp_loc_a101;
+    ---------------------------------------------------------------------------
+    -- CRM - SALES DETAILS
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.crm_sales_details';
 
-    COPY bronze.erp_loc_a101
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/LOC_A101.csv'
-    DELIMITER ','
-    CSV HEADER;
+        TRUNCATE TABLE bronze.crm_sales_details;
 
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_loc_a101;
-    RAISE NOTICE 'Loaded % rows into bronze.erp_loc_a101', v_rowcount;
+        COPY bronze.crm_sales_details
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_crm/sales_details.csv'
+        DELIMITER ','
+        CSV HEADER;
 
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.crm_sales_details;
+        RAISE NOTICE 'Loaded % rows into crm_sales_details', v_rowcount;
 
-    -- =========================================================================
-    -- SECTION 6: LOAD ERP - PRODUCT CATEGORY
-    -- =========================================================================
-    
-    RAISE NOTICE 'Loading: bronze.erp_px_cat_g1v2 ...';
-    
-    TRUNCATE TABLE bronze.erp_px_cat_g1v2;
-
-    COPY bronze.erp_px_cat_g1v2
-    FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/PX_CAT_G1V2.csv'
-    DELIMITER ','
-    CSV HEADER;
-
-    SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_px_cat_g1v2;
-    RAISE NOTICE 'Loaded % rows into bronze.erp_px_cat_g1v2', v_rowcount;
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading crm_sales_details: %', v_error_message;
+    END;
 
 
-    -- =========================================================================
-    -- END OF PROCEDURE
-    -- =========================================================================
-    
+    ---------------------------------------------------------------------------
+    -- ERP - CUSTOMER
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.erp_cust_az12';
+
+        TRUNCATE TABLE bronze.erp_cust_az12;
+
+        COPY bronze.erp_cust_az12
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/CUST_AZ12.csv'
+        DELIMITER ','
+        CSV HEADER;
+
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_cust_az12;
+        RAISE NOTICE 'Loaded % rows into erp_cust_az12', v_rowcount;
+
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading erp_cust_az12: %', v_error_message;
+    END;
+
+
+    ---------------------------------------------------------------------------
+    -- ERP - LOCATION
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.erp_loc_a101';
+
+        TRUNCATE TABLE bronze.erp_loc_a101;
+
+        COPY bronze.erp_loc_a101
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/LOC_A101.csv'
+        DELIMITER ','
+        CSV HEADER;
+
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_loc_a101;
+        RAISE NOTICE 'Loaded % rows into erp_loc_a101', v_rowcount;
+
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading erp_loc_a101: %', v_error_message;
+    END;
+
+
+    ---------------------------------------------------------------------------
+    -- ERP - PRODUCT CATEGORY
+    ---------------------------------------------------------------------------
+    BEGIN
+        RAISE NOTICE 'Loading: bronze.erp_px_cat_g1v2';
+
+        TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+
+        COPY bronze.erp_px_cat_g1v2
+        FROM 'D:/Potencial_jobs/Samir-Abdullah-Fouad/DataEngineer_UDEMY/Building_Modern_DWH/sql_scripts/datasets/source_erp/PX_CAT_G1V2.csv'
+        DELIMITER ','
+        CSV HEADER;
+
+        SELECT COUNT(*) INTO v_rowcount FROM bronze.erp_px_cat_g1v2;
+        RAISE NOTICE 'Loaded % rows into erp_px_cat_g1v2', v_rowcount;
+
+    EXCEPTION WHEN OTHERS THEN
+        v_error_message := SQLERRM;
+        RAISE EXCEPTION 'Error loading erp_px_cat_g1v2: %', v_error_message;
+    END;
+
+
+    RAISE NOTICE '===========================================================';
     RAISE NOTICE 'Bronze Layer Load Completed Successfully ✅';
+    RAISE NOTICE '===========================================================';
 
 END;
 $$;
 
--- to run the procedure :
--- CALL bronze.load_bronze_layer();
+-- To run the script:
+-- CALL bronze.load_bronze_layer_safe();
+-- This script has TRY and CATCH 
